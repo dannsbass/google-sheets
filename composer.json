@@ -2,7 +2,11 @@
     "name": "dannsbass/google-sheets",
     "type": "library",
     "description": "Manipulate Google Sheets using PHP",
-    "keywords": ["google sheets", "google spreadsheets", "google sheets php"],
+    "keywords": [
+        "google sheets",
+        "google spreadsheets",
+        "google sheets php"
+    ],
     "homepage": "https://github.com/dannsbass/google-sheets",
     "license": "MIT",
     "authors": [
@@ -23,6 +27,11 @@
     "extra": {
         "google/apiclient-services": [
             "Sheets"
+        ]
+    },
+    "autoload": {
+        "files": [
+            "src/Dannsheet.php"
         ]
     }
 }
