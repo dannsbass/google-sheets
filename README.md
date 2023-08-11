@@ -5,13 +5,13 @@ Examples of Google Sheets API implementations using PHP
 ## Requirements
 
 1. [PHP](https://php.net) 7.4+
-2. a single file named 'credentials.json' from [Google](https://console.cloud.google.com/)
+2. a single file named `credentials.json` from [Google](https://console.cloud.google.com/)
 
 ## Installation
 
 ### Using [Composer](https://getcomposer.org)
 
-To install PHPTelebot with Composer, just add the following to your `composer.json` file:
+To install, just add the following script to your `composer.json` file:
 
 ```json
 {
