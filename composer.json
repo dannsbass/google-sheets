@@ -1,0 +1,28 @@
+{
+    "name": "dannsbass/google-sheets",
+    "type": "library",
+    "description": "Manipulate Google Sheets using PHP",
+    "keywords": ["google sheets", "google spreadsheets", "google sheets php"],
+    "homepage": "https://github.com/dannsbass/google-sheets",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Danns Bass",
+            "email": "dannsbass@gmail.com",
+            "homepage": "https://github.com/dannsbass",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=8.0.0",
+        "google/apiclient": "^2.12.1"
+    },
+    "scripts": {
+        "pre-autoload-dump": "Google\\Task\\Composer::cleanup"
+    },
+    "extra": {
+        "google/apiclient-services": [
+            "Sheets"
+        ]
+    }
+}

@@ -1,0 +1,88 @@
+#!/usr/bin/env php
+<?php
+
+require __DIR__ . '/../config-example.php';
+
+if (isset($argv[1])) {
+    if (in_array($argv[1], ['cetak', 'lihat'])) {
+        if (!isset($argv[2])) exit("cetak|lihat [range]");
+        echo Dannsheet::quickShow($argv[2]);
+    } elseif ($argv[1] == 'tambah') {
+        if (!isset($argv[3])) exit("tambah [range] [data]\n");
+        $range = $argv[2];
+        $data = [array_slice($argv, 3)];
+        Dannsheet::appendRow($data, $range);
+    } elseif ($argv[1] == 'hapus') {
+        if (!isset($argv[2])) exit("hapus [range]");
+        Dannsheet::clear($argv[2]);
+    } elseif ($argv[1] == 'ubah') {
+        if (!isset($argv[3])) exit("ubah [range] [data]\n");
+        $data = [array_slice($argv, 3)];
+        Dannsheet::update($data, $argv[2]);
+    } elseif ($argv[1] == 'judul') {
+        if (!isset($argv[2])) {
+            $spreadsheet = Dannsheet::getSpreadsheet();
+            $count = count($spreadsheet);
+            if ($count == 0) exit("Spreadsheet not found\n");
+            echo "$count sheet(s) found\n";
+            $mask = "%10s %-15s\n";
+            echo sprintf($mask, "Sheet ID", "Name");
+            foreach ($spreadsheet as $sheet) {
+                echo sprintf($mask, $sheet->properties->sheetId, $sheet->properties->title);
+            }
+        }
+        if (!isset($argv[2])) exit(pesanJudul());
+        if (strpos($argv[2], 'baru=') === 0) {
+            $sheet = str_replace('baru=', '', $argv[2]);
+            if (Dannsheet::sheetExists($sheet)) exit("sheet $sheet sudah ada\n");
+            else Dannsheet::addSheet($sheet); exit("sheet $sheet berhasil dibuat\n");
+        }
+        if (strpos($argv[2], 'hapus=') === 0) {
+            $sheet = str_replace('hapus=', '', $argv[2]);
+            if(!Dannsheet::sheetExists($sheet)) exit("sheet $sheet tidak ditemukan\n");
+            else Dannsheet::deleteSheetByTitle($sheet); exit("sheet $sheet berhasil dihapus\n");
+        }
+        if (!isset($argv[3])) exit(pesanJudul());
+        if (is_numeric($argv[2])) Dannsheet::renameSheetByNumber($argv[2], $argv[3]);
+        elseif (is_string($argv[2])) Dannsheet::renameSheetByTitle($argv[2], $argv[3]);
+    } elseif (in_array($argv[1], ['tolong', 'help', '-h', '--help'])) {
+        echo helpText();
+    } else {
+        echo helpText();
+    }
+    exit;
+}
+
+function pesanJudul(){
+    return "\njudul\t[no|judul sheet lama] [judul sheet baru]\n\tjudul baru=[judul baru]\n\tjudul hapus=[judul]\n";
+}
+
+function helpText()
+{
+    return <<<EOF
+    DAFTAR PERINTAH:
+    cetak|lihat [range]                             melihat data dalam range
+    tambah [range] [data]                           menambah data ke dalam range
+    hapus [range]                                   menghapus data dalam range
+    ubah [range] [data]                             mengubah data dalam range
+    judul [no|judul sheet lama] [judul sheet baru]  mengubah judul sheet
+    tolong|help|-h|--help                           menampilkan tulisan ini\n
+    EOF;
+}
+
+eksekusi();
+
+function eksekusi($sc = '')
+{
+    if (empty($sc)) {
+        $sc = readline('> ');
+        if (in_array($sc, ['exit', 'x'])) exit("Bye!\n");
+    }
+    eval($sc);
+    echo PHP_EOL;
+    eksekusi();
+}
+
+function cetak($range)
+{
+}
