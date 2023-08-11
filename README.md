@@ -17,7 +17,7 @@ To install, just add the following script to your `composer.json` file:
 {
     "require": {
         "php": ">=8.0.0",
-        "dannsbass/google-sheets": "dev-master"
+        "dannsbass/google-sheets": "*"
     },
     "scripts": {
         "pre-autoload-dump": "Google\\Task\\Composer::cleanup"
