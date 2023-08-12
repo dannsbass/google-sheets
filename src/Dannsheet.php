@@ -26,6 +26,9 @@ class Dannsheet
         return self::$spreadsheetId;
     }
 
+    /**
+     * To get client
+     */
     public static function getClient()
     {
         $client = new \Google\Client();
@@ -36,12 +39,18 @@ class Dannsheet
         return $client;
     }
 
+    /**
+     * To get service
+     */
     public static function getService()
     {
         $client = self::getClient();
         return new \Google\Service\Sheets($client);
     }
 
+    /**
+     * To get spreadsheet
+     */
     public static function getSpreadsheet()
     {
         $service = self::getService();
@@ -49,26 +58,10 @@ class Dannsheet
     }
 
     /**
-     * @param string $range
-     */
-    public static function quickShow(string $range)
-    {
-        return self::prettyShow(self::view($range));
-    }
-
-    /**
-     * 
-     */
-    public static function printSheetTitles()
-    {
-        $ss = self::getSpreadsheet();
-        for ($i = 0; $i < count($ss); $i++) {
-            echo $ss[$i]->properties->title . "\n";
-        }
-    }
-
-    /**
-     * 
+     * To check if sheet exists by title
+     * if so return object
+     * if not return false
+     * @param string $title
      */
     public static function sheetExists(string $title)
     {
@@ -80,10 +73,13 @@ class Dannsheet
     }
 
     /**
+     * To get values of range
+     * if data found return the values
+     * if not return false
      * @param string $range
      * @return array|false
      */
-    public static function view(string $range)
+    public static function getValues(string $range)
     {
         $sheet_title = explode('!', $range)[0];
         $spreadsheet = self::sheetExists($sheet_title);
@@ -95,6 +91,43 @@ class Dannsheet
         }
         return false;
     }
+
+
+    /**
+     * To get string of data
+     * @param string $range
+     */
+    public static function quickShow(string $range)
+    {
+        return self::prettyShow(self::view($range));
+    }
+
+    /**
+     * To print data
+     */
+    public static function prettyPrint(string $range){
+        echo self::quickShow($range);
+    }
+
+    /**
+     * To print all sheet titles
+     */
+    public static function printSheetTitles()
+    {
+        $ss = self::getSpreadsheet();
+        for ($i = 0; $i < count($ss); $i++) {
+            echo $ss[$i]->properties->title . "\n";
+        }
+    }
+
+    /**
+     * alias function
+     * @param string $range
+     */
+     public static function view(string $range){
+        return self::getValues($range);
+     }
+
 
     /**
      * @param string $title
