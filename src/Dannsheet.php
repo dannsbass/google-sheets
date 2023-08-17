@@ -1,5 +1,8 @@
 <?php
 
+use \Google\Service\Sheets\BatchUpdateSpreadsheetRequest;
+use \Google\Service\Sheets\ClearValuesRequest;
+use \Google\Service\Sheets\ValueRange;
 class Dannsheet
 {
 
@@ -62,6 +65,7 @@ class Dannsheet
      * if so return object
      * if not return false
      * @param string $title
+     * @return object|false
      */
     public static function sheetExists(string $title)
     {
@@ -82,8 +86,7 @@ class Dannsheet
     public static function getValues(string $range)
     {
         $sheet_title = explode('!', $range)[0];
-        $spreadsheet = self::sheetExists($sheet_title);
-        if($spreadsheet){
+        if(self::sheetExists($sheet_title)){
             $service = self::getService();
             $spreadsheetId = self::getSpreadsheetId();
             $response = $service->spreadsheets_values->get($spreadsheetId, $range);
@@ -134,7 +137,7 @@ class Dannsheet
      */
     public static function addSheet(string $title)
     {
-        $body = new Google\Service\Sheets\BatchUpdateSpreadsheetRequest();
+        $body = new BatchUpdateSpreadsheetRequest();
         $body->setRequests([
             'addSheet' => [
                 'properties' => [
@@ -151,12 +154,72 @@ class Dannsheet
     /**
      * @param string $range
      */
-    public static function clear($range)
+    public static function clear(string $range)
     {
-        $clear = new \Google\Service\Sheets\ClearValuesRequest();
+        $clear = new ClearValuesRequest();
         $service = self::getService();
         $spreadsheetId = self::getSpreadsheetId();
-        $service->spreadsheets_values->clear($spreadsheetId, $range, $clear);
+        return $service->spreadsheets_values->clear($spreadsheetId, $range, $clear);
+    }
+
+    /**
+     * 
+     */
+    public static function batchUpdate(BatchUpdateSpreadsheetRequest $body)
+    {
+        $service = self::getService();
+        $spreadsheetId = self::getSpreadsheetId();
+        return $service->spreadsheets->batchUpdate($spreadsheetId, $body);
+    }
+
+    /**
+     * 
+     */
+    public static function deleteRow(int $startIndex, int $endIndex, string $sheet_name)
+    {
+        $sheet = self::sheetExists($sheet_name);
+        if(!$sheet) return false;
+        $body = new BatchUpdateSpreadsheetRequest();
+        $body->setRequests([
+            'deleteDimension' => [
+                'range' => [
+                    'sheetId' => $sheet->properties->sheetId,
+                    "dimension" => "ROWS",
+                    "startIndex" => $startIndex,
+                    "endIndex" => $endIndex,
+                ]
+            ]
+        ]);
+        return self::batchUpdate($body);
+    }
+    // {
+    //     "requests": [
+    //       {
+    //         "deleteDimension": {
+    //           "range": {
+    //             "sheetId": sheetId,
+    //             "dimension": "ROWS",
+    //             "startIndex": 5,
+    //             "endIndex": 6
+    //           }
+    //         }
+    //       }
+    //     ],
+    //   }
+
+    /**
+     * 
+     */
+    public static function findRowByValue($value, $range){
+        $values = Dannsheet::getValues($range);
+        if(!empty($values)){
+            foreach ($values as $key => $array) {
+                foreach ($array as $k => $v) {
+                    if($v == $value) return $key + 1;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -164,7 +227,7 @@ class Dannsheet
      */
     public static function deleteSheetById(int $sheetId)
     {
-        $body = new Google\Service\Sheets\BatchUpdateSpreadsheetRequest();
+        $body = new BatchUpdateSpreadsheetRequest();
         // Delete Sheet
         $body->setRequests([
             'deleteSheet' => [
@@ -214,7 +277,7 @@ class Dannsheet
     {
         $spreadsheet = self::getSpreadsheet();
         if (count($spreadsheet) <= $number) return false;
-        $body = new Google\Service\Sheets\BatchUpdateSpreadsheetRequest();
+        $body = new BatchUpdateSpreadsheetRequest();
         $body->setRequests([
             'updateSheetProperties' => [
                 'properties' => [
@@ -254,7 +317,7 @@ class Dannsheet
      */
     public static function appendRow(array $rows, string $range)
     {
-        $valueRange = new \Google\Service\Sheets\ValueRange();
+        $valueRange = new ValueRange();
         $valueRange->setValues($rows);
         $options = ['valueInputOption' => 'USER_ENTERED'];
         $service = self::getService();
@@ -268,7 +331,7 @@ class Dannsheet
      */
     public static function update(array $rows, string $range)
     {
-        $valueRange = new \Google\Service\Sheets\ValueRange();
+        $valueRange = new ValueRange();
         $valueRange->setValues($rows);
         $options = ['valueInputOption' => 'USER_ENTERED'];
         $service = Dannsheet::getService();
