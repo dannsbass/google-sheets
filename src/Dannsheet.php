@@ -178,34 +178,20 @@ class Dannsheet
     public static function deleteRow(int $startIndex, int $endIndex, string $sheet_name)
     {
         $sheet = self::sheetExists($sheet_name);
-        if(!$sheet) return false;
+        if(!$sheet || empty($startIndex) || empty($endIndex)) return false;
         $body = new BatchUpdateSpreadsheetRequest();
         $body->setRequests([
             'deleteDimension' => [
                 'range' => [
                     'sheetId' => $sheet->properties->sheetId,
                     "dimension" => "ROWS",
-                    "startIndex" => $startIndex,
+                    "startIndex" => $startIndex - 1, // index starts from 0
                     "endIndex" => $endIndex,
                 ]
             ]
         ]);
         return self::batchUpdate($body);
     }
-    // {
-    //     "requests": [
-    //       {
-    //         "deleteDimension": {
-    //           "range": {
-    //             "sheetId": sheetId,
-    //             "dimension": "ROWS",
-    //             "startIndex": 5,
-    //             "endIndex": 6
-    //           }
-    //         }
-    //       }
-    //     ],
-    //   }
 
     /**
      * 
