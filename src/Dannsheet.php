@@ -175,10 +175,10 @@ class Dannsheet
     /**
      * 
      */
-    public static function deleteRow(int $startIndex, int $endIndex, string $sheet_name)
+    public static function deleteRow(string $sheet_name, int $startIndex, int $endIndex = null )
     {
         $sheet = self::sheetExists($sheet_name);
-        if(!$sheet || empty($startIndex) || empty($endIndex)) return false;
+        if(!$sheet || empty($startIndex)) return false;
         $body = new BatchUpdateSpreadsheetRequest();
         $body->setRequests([
             'deleteDimension' => [
@@ -186,7 +186,7 @@ class Dannsheet
                     'sheetId' => $sheet->properties->sheetId,
                     "dimension" => "ROWS",
                     "startIndex" => $startIndex - 1, // index starts from 0
-                    "endIndex" => $endIndex,
+                    "endIndex" => empty($endIndex) ? $startIndex : $endIndex,
                 ]
             ]
         ]);
@@ -196,14 +196,46 @@ class Dannsheet
     /**
      * 
      */
-    public static function findRowByValue($value, $range){
+    public static function findRowByValue($value, string $range, bool $strict = true){
         $values = Dannsheet::getValues($range);
         if(!empty($values)){
+            $result = [];
             foreach ($values as $key => $array) {
-                foreach ($array as $k => $v) {
-                    if($v == $value) return $key + 1;
+                foreach ($array as $v) {
+                    if($strict && $v == $value){
+                        $result[] = $key + 1;
+                    }
+                    if(!$strict && strpos($v, $value) !== false){
+                        $result[] = $key + 1;
+                    }
                 }
             }
+            if(count($result) > 0) return $result;
+        }
+        return false;
+    }
+
+    /**
+     * 
+     */
+    public static function findCellByValue($value, string $range, bool $strict = true){
+        $values = Dannsheet::getValues($range);
+        if(!empty($values)){
+            $a = 'A';
+            $result = [];
+            foreach ($values as $key => $array) {
+                foreach ($array as $v) {
+                    if($strict && $v == $value){
+                        $result[] = $a . ($key + 1);
+                    }
+                    if(!$strict && strpos($v, $value) !== false){
+                        $result[] = $a . ($key + 1);
+                    }
+                    $a++;
+                }
+                $a = 'A';
+            }
+            if(count($result) > 0) return $result;
         }
         return false;
     }
