@@ -18,7 +18,6 @@
         }
     ],
     "require": {
-        "php": ">=8.0.0",
         "google/apiclient": "^2.12.1"
     },
     "scripts": {
